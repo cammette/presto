@@ -102,6 +102,7 @@
         <module>presto-base-jdbc</module>
         <module>presto-mysql</module>
         <module>presto-postgresql</module>
+        <module>presto-cratedb</module>
         <module>presto-redshift</module>
         <module>presto-sqlserver</module>
         <module>presto-mongodb</module>
@@ -119,7 +120,7 @@
         <module>presto-cli</module>
         <module>presto-benchmark-driver</module>
         <module>presto-server</module>
-        <module>presto-server-rpm</module>
+	<!-- <module>presto-server-rpm</module>-->
         <module>presto-docs</module>
         <module>presto-verifier</module>
         <module>presto-testing-server-launcher</module>
@@ -758,6 +759,12 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>42.2.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.crate</groupId>
+                <artifactId>crate-jdbc</artifactId>
+                <version>2.3.1</version>
             </dependency>
 
             <dependency>

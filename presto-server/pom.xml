@@ -50,7 +50,7 @@
             <type>tar.gz</type>
             <scope>provided</scope>
         </dependency>
-        
+
         <!-- plugins -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
@@ -175,6 +175,14 @@
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-postgresql</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.facebook.presto</groupId>
+            <artifactId>presto-cratedb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <scope>provided</scope>
@@ -311,7 +319,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

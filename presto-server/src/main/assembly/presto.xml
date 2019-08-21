@@ -11,7 +11,7 @@
             <source>NOTICE</source>
         </file>
     </files>
-    
+
     <dependencySets>
         <!-- lib -->
         <dependencySet>
@@ -163,6 +163,10 @@
         <fileSet>
             <directory>${project.build.directory}/dependency/presto-elasticsearch-${project.version}</directory>
             <outputDirectory>plugin/presto-elasticsearch</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/dependency/presto-cratedb-${project.version}</directory>
+            <outputDirectory>plugin/presto-cratedb</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
