@@ -15,7 +15,16 @@ package com.facebook.presto.plugin.cratedb;
 
 import com.facebook.presto.plugin.jdbc.*;
 import com.facebook.presto.spi.*;
+import com.facebook.presto.spi.type.CharType;
+import com.facebook.presto.spi.type.DateType;
+import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.DoubleType;
+import com.facebook.presto.spi.type.RealType;
+import com.facebook.presto.spi.type.TimeType;
+import com.facebook.presto.spi.type.TimestampType;
+import com.facebook.presto.spi.type.TinyintType;
 import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
 import com.google.common.collect.ImmutableList;
 import io.crate.client.jdbc.CrateDriver;
 
@@ -28,7 +37,9 @@ import java.util.Optional;
 
 import static com.facebook.presto.plugin.jdbc.JdbcErrorCode.JDBC_ERROR;
 import static com.facebook.presto.spi.StandardErrorCode.ALREADY_EXISTS;
+import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
 import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
+import static com.facebook.presto.spi.type.Varchars.isVarcharType;
 import static java.lang.String.format;
 import static java.sql.ResultSetMetaData.columnNullable;
 
@@ -107,9 +118,7 @@ public class CrateDbClient
             columnSize = Integer.MAX_VALUE;
         }
         else if (typeName.equalsIgnoreCase("double precision")) {
-            dataType = Types.NUMERIC;
-            decimalDigits = 8;
-            columnSize = 15;
+            dataType = Types.DOUBLE;
         }
         else if (typeName.equalsIgnoreCase("real")) {
             dataType = Types.REAL;
@@ -131,7 +140,8 @@ public class CrateDbClient
         }
         else if (typeName.equalsIgnoreCase("boolean")) {
             dataType = Types.BOOLEAN;
-        }else{
+        }
+        else {
             dataType = Types.JAVA_OBJECT;
         }
         JdbcTypeHandle typeHandle = new JdbcTypeHandle(
@@ -147,7 +157,7 @@ public class CrateDbClient
         JdbcTableHandle tableHandle = layoutHandle.getTable();
         JdbcSplit jdbcSplit = new JdbcSplit(
                 connectorId,
-              "",
+                "",
                 tableHandle.getSchemaName(),
                 tableHandle.getTableName(),
                 layoutHandle.getTupleDomain(),
@@ -158,10 +168,21 @@ public class CrateDbClient
     @Override
     protected String toSqlType(Type type)
     {
-        if (VARBINARY.equals(type)) {
-            return "bytea";
+        if (type instanceof VarcharType || type instanceof CharType) {
+            return "text";
         }
-
+        if (type instanceof DecimalType || type instanceof DoubleType) {
+            return "double precision";
+        }
+        if (type instanceof RealType) {
+            return "real";
+        }
+        if (type instanceof TinyintType) {
+            return "smallint";
+        }
+        if (type instanceof DateType || type instanceof TimeType || type instanceof TimestampType) {
+            return "timestamp without time zone";
+        }
         return super.toSqlType(type);
     }
 

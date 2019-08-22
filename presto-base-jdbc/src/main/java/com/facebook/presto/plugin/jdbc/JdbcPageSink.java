@@ -18,6 +18,7 @@ import com.facebook.presto.spi.Page;
 import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.type.DecimalType;
+import com.facebook.presto.spi.type.TimestampType;
 import com.facebook.presto.spi.type.Type;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Shorts;
@@ -31,6 +32,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLNonTransientException;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -161,6 +163,10 @@ public class JdbcPageSink
             long utcMillis = DAYS.toMillis(type.getLong(block, position));
             long localMillis = getInstanceUTC().getZone().getMillisKeepLocal(DateTimeZone.getDefault(), utcMillis);
             statement.setDate(parameter, new Date(localMillis));
+        }else  if (TimestampType.TIMESTAMP.equals(type)) {
+            // convert to midnight in default time zone
+            long utcMillis =type.getLong(block, position);
+            statement.setObject(parameter, new Timestamp(utcMillis));
         }
         else {
             throw new PrestoException(NOT_SUPPORTED, "Unsupported column type: " + type.getDisplayName());

@@ -15,6 +15,7 @@ package com.facebook.presto.plugin.cratedb;
 
 import com.facebook.presto.plugin.jdbc.BaseJdbcConfig;
 import com.facebook.presto.plugin.jdbc.JdbcClient;
+import com.facebook.presto.spi.ConnectorPageSink;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
