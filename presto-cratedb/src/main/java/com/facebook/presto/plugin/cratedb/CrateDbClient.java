@@ -13,8 +13,23 @@
  */
 package com.facebook.presto.plugin.cratedb;
 
-import com.facebook.presto.plugin.jdbc.*;
-import com.facebook.presto.spi.*;
+import com.facebook.presto.plugin.jdbc.BaseJdbcClient;
+import com.facebook.presto.plugin.jdbc.BaseJdbcConfig;
+import com.facebook.presto.plugin.jdbc.DriverConnectionFactory;
+import com.facebook.presto.plugin.jdbc.JdbcColumnHandle;
+import com.facebook.presto.plugin.jdbc.JdbcConnectorId;
+import com.facebook.presto.plugin.jdbc.JdbcSplit;
+import com.facebook.presto.plugin.jdbc.JdbcTableHandle;
+import com.facebook.presto.plugin.jdbc.JdbcTableLayoutHandle;
+import com.facebook.presto.plugin.jdbc.JdbcTypeHandle;
+import com.facebook.presto.plugin.jdbc.ReadMapping;
+import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.ConnectorSplitSource;
+import com.facebook.presto.spi.ConnectorTableMetadata;
+import com.facebook.presto.spi.FixedSplitSource;
+import com.facebook.presto.spi.PrestoException;
+import com.facebook.presto.spi.SchemaTableName;
+import com.facebook.presto.spi.TableNotFoundException;
 import com.facebook.presto.spi.type.CharType;
 import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.DecimalType;
@@ -30,16 +45,19 @@ import io.crate.client.jdbc.CrateDriver;
 
 import javax.inject.Inject;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.facebook.presto.plugin.jdbc.JdbcErrorCode.JDBC_ERROR;
 import static com.facebook.presto.spi.StandardErrorCode.ALREADY_EXISTS;
-import static com.facebook.presto.spi.StandardErrorCode.NOT_SUPPORTED;
-import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
-import static com.facebook.presto.spi.type.Varchars.isVarcharType;
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static java.sql.ResultSetMetaData.columnNullable;
 
@@ -72,8 +90,8 @@ public class CrateDbClient
         String escape = metadata.getSearchStringEscape();
         return metadata.getTables(
                 connection.getCatalog(),
-                escapeNamePattern(schemaName, escape),
-                escapeNamePattern(tableName, escape),
+                schemaName,
+                tableName,
                 new String[] {"TABLE", "VIEW", "MATERIALIZED VIEW", "FOREIGN TABLE"});
     }
 
@@ -222,8 +240,8 @@ public class CrateDbClient
         String escape = metadata.getSearchStringEscape();
         return metadata.getColumns(
                 tableHandle.getCatalogName(),
-                escapeNamePattern(tableHandle.getSchemaName(), escape),
-                escapeNamePattern(tableHandle.getTableName(), escape),
+                tableHandle.getSchemaName(),
+                tableHandle.getTableName(),
                 null);
     }
 }
